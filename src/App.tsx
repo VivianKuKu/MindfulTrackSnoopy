@@ -33,8 +33,17 @@ export default function App() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [state, setState] = useState<AppState>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) return JSON.parse(saved);
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && Array.isArray(parsed.habits)) {
+          return parsed;
+        }
+      }
+    } catch (e) {
+      console.error('Failed to load state:', e);
+    }
     return {
       habits: DEFAULT_HABITS,
       logs: {},
