@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
-import { 
-  LayoutDashboard, 
-  Calendar, 
-  Settings, 
-  Plus, 
-  ChevronLeft, 
+import {
+  LayoutDashboard,
+  Calendar,
+  Settings,
+  Plus,
+  ChevronLeft,
   ChevronRight,
   Sparkles,
   Trash2,
@@ -97,14 +97,14 @@ export default function App() {
     setState(prev => {
       const index = prev.habits.findIndex(h => h.id === habitId);
       if (index === -1) return prev;
-      
+
       const newHabits = [...prev.habits];
       const targetIndex = direction === 'up' ? index - 1 : index + 1;
-      
+
       if (targetIndex < 0 || targetIndex >= newHabits.length) return prev;
-      
+
       [newHabits[index], newHabits[targetIndex]] = [newHabits[targetIndex], newHabits[index]];
-      
+
       return { ...prev, habits: newHabits };
     });
   };
@@ -114,7 +114,7 @@ export default function App() {
   const confirmDelete = () => {
     if (!habitToDelete) return;
     const habitId = habitToDelete;
-    
+
     setState(prev => {
       const newLogs: Record<string, DayLog> = {};
       Object.keys(prev.logs).forEach(date => {
@@ -163,13 +163,13 @@ export default function App() {
         </div>
         {activeTab === 'today' && (
           <div className="flex gap-2">
-            <button 
+            <button
               onClick={() => changeDate(-1)}
               className="p-2.5 bg-white rounded-2xl border border-warm-cream shadow-sm hover:bg-warm-cream transition-all active:scale-90"
             >
               <ChevronLeft size={20} className="text-warm-ink/60" />
             </button>
-            <button 
+            <button
               onClick={() => changeDate(1)}
               className="p-2.5 bg-white rounded-2xl border border-warm-cream shadow-sm hover:bg-warm-cream transition-all active:scale-90"
             >
@@ -192,15 +192,15 @@ export default function App() {
             >
               <section>
                 <h3 className="text-[10px] font-bold text-warm-ink/40 uppercase tracking-[0.2em] mb-5">How is your heart today?</h3>
-                <MoodSelector 
-                  selected={currentLog.mood} 
-                  onSelect={(mood) => updateLog({ mood })} 
+                <MoodSelector
+                  selected={currentLog.mood}
+                  onSelect={(mood) => updateLog({ mood })}
                 />
               </section>
 
-              <HabitList 
-                habits={state.habits} 
-                completedIds={currentLog.habits} 
+              <HabitList
+                habits={state.habits}
+                completedIds={currentLog.habits}
                 onToggle={toggleHabit}
                 onDelete={deleteHabit}
                 onMove={moveHabit}
@@ -271,38 +271,38 @@ export default function App() {
       </main>
 
       {/* Navigation Bar */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40">
-        <div className="bg-warm-ink text-warm-bg p-4 pb-8 flex justify-around items-center shadow-[0_-10px_30px_rgba(74,63,53,0.15)] border-t border-white/5">
+      <nav className="fixed bottom-6 left-0 right-0 z-40 px-6 pointer-events-none flex justify-center">
+        <div className="bg-warm-ink/95 backdrop-blur-xl rounded-full text-warm-bg p-2 flex justify-between items-center shadow-[0_20px_40px_rgba(74,63,53,0.25)] border border-white/10 pointer-events-auto w-full max-w-sm">
           <button
             onClick={() => setActiveTab('today')}
             className={cn(
-              "flex items-center gap-2 px-6 py-3 rounded-2xl transition-all duration-500",
-              activeTab === 'today' ? "bg-warm-bg text-warm-ink shadow-lg" : "text-warm-bg/40 hover:text-warm-bg/70"
+              "flex items-center justify-center gap-2 px-5 py-3.5 rounded-full transition-all duration-500 flex-1",
+              activeTab === 'today' ? "bg-warm-bg text-warm-ink shadow-xl scale-100" : "text-warm-bg/50 hover:text-warm-bg/80 hover:bg-white/10 mx-1 scale-95"
             )}
           >
-            <Sparkles size={22} />
+            <Sparkles size={20} className={activeTab === 'today' ? "animate-pulse" : ""} />
             {activeTab === 'today' && <span className="font-bold text-sm tracking-tight">Today</span>}
           </button>
-          
+
           <button
             onClick={() => setActiveTab('stats')}
             className={cn(
-              "flex items-center gap-2 px-6 py-3 rounded-2xl transition-all duration-500",
-              activeTab === 'stats' ? "bg-warm-bg text-warm-ink shadow-lg" : "text-warm-bg/40 hover:text-warm-bg/70"
+              "flex items-center justify-center gap-2 px-5 py-3.5 rounded-full transition-all duration-500 flex-1",
+              activeTab === 'stats' ? "bg-warm-bg text-warm-ink shadow-xl scale-100" : "text-warm-bg/50 hover:text-warm-bg/80 hover:bg-white/10 mx-1 scale-95"
             )}
           >
-            <LayoutDashboard size={22} />
+            <LayoutDashboard size={20} />
             {activeTab === 'stats' && <span className="font-bold text-sm tracking-tight">Journey</span>}
           </button>
 
           <button
             onClick={() => setActiveTab('history')}
             className={cn(
-              "flex items-center gap-2 px-6 py-3 rounded-2xl transition-all duration-500",
-              activeTab === 'history' ? "bg-warm-bg text-warm-ink shadow-lg" : "text-warm-bg/40 hover:text-warm-bg/70"
+              "flex items-center justify-center gap-2 px-5 py-3.5 rounded-full transition-all duration-500 flex-1",
+              activeTab === 'history' ? "bg-warm-bg text-warm-ink shadow-xl scale-100" : "text-warm-bg/50 hover:text-warm-bg/80 hover:bg-white/10 mx-1 scale-95"
             )}
           >
-            <Calendar size={22} />
+            <Calendar size={20} />
             {activeTab === 'history' && <span className="font-bold text-sm tracking-tight">Log</span>}
           </button>
         </div>
@@ -310,9 +310,9 @@ export default function App() {
 
       {/* Modals */}
       {isAddModalOpen && (
-        <AddHabitModal 
-          onClose={() => setIsAddModalOpen(false)} 
-          onAdd={addHabit} 
+        <AddHabitModal
+          onClose={() => setIsAddModalOpen(false)}
+          onAdd={addHabit}
         />
       )}
 
@@ -337,18 +337,18 @@ export default function App() {
                 <div className="p-3 bg-rose-50 text-rose-500 rounded-2xl">
                   <Trash2 size={24} />
                 </div>
-                <button 
+                <button
                   onClick={() => setHabitToDelete(null)}
                   className="p-2 hover:bg-warm-cream rounded-full transition-colors text-warm-ink/20"
                 >
                   <X size={20} />
                 </button>
               </div>
-              
+
               <div className="space-y-2">
                 <h3 className="text-2xl font-serif font-bold text-warm-ink">Remove Habit?</h3>
                 <p className="text-warm-ink/50 leading-relaxed">
-                  Are you sure you want to remove <span className="font-bold text-warm-ink">"{state.habits.find(h => h.id === habitToDelete)?.name}"</span>? 
+                  Are you sure you want to remove <span className="font-bold text-warm-ink">"{state.habits.find(h => h.id === habitToDelete)?.name}"</span>?
                   This will also clear it from your history.
                 </p>
               </div>

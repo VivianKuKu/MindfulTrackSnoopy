@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
+import {
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
   ResponsiveContainer,
   BarChart,
   Bar,
@@ -40,7 +40,6 @@ const moodLabels: Record<number, string> = {
 
 export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCount }) => {
   const [view, setView] = useState<'week' | 'month'>('week');
-  const [isExpanded, setIsExpanded] = useState(false);
   const [activeDetail, setActiveDetail] = useState<'mood' | 'habits' | null>(null);
   const [calendarMonth, setCalendarMonth] = useState(new Date());
   const scrollRefMood = useRef<HTMLDivElement>(null);
@@ -57,7 +56,7 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
       const date = subDays(today, (days - 1) - i);
       const dateStr = format(date, 'yyyy-MM-dd');
       const log = logs[dateStr];
-      
+
       return {
         name: format(date, 'do MMM'),
         shortName: view === 'week' ? format(date, 'EEE') : format(date, 'd'),
@@ -88,12 +87,12 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
     const last30DaysLogs = last30DaysDates.map(d => logs[d]).filter(Boolean);
 
     const avgMoodValue = last30DaysLogs.reduce((acc, log) => acc + (log.mood ? moodValues[log.mood] : 0), 0) / (last30DaysLogs.length || 1);
-    
+
     // Calculate completion rate based on total possible habits in 30 days
     const totalPossibleHabits = 30 * (habitsCount || 1);
     const actualCompletedHabits = last30DaysLogs.reduce((acc, log) => acc + (log.habits?.length || 0), 0);
     const habitCompletionRate = (actualCompletedHabits / totalPossibleHabits) * 100;
-    
+
     // Mood distribution for detail view
     const moodDistribution = last30DaysLogs.reduce((acc, log) => {
       if (log.mood) acc[log.mood] = (acc[log.mood] || 0) + 1;
@@ -105,7 +104,7 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
     let totalDiff = 0;
     let comparisons = 0;
     for (let i = 0; i < recordedMoods.length - 1; i++) {
-      totalDiff += Math.abs(recordedMoods[i] - recordedMoods[i+1]);
+      totalDiff += Math.abs(recordedMoods[i] - recordedMoods[i + 1]);
       comparisons++;
     }
     const moodVolatility = comparisons > 0 ? totalDiff / comparisons : 0;
@@ -120,7 +119,7 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
         dayStats[day].count += 1;
       }
     });
-    
+
     let bestDay = 'N/A';
     let maxAvg = 0;
     Object.entries(dayStats).forEach(([day, stat]) => {
@@ -170,7 +169,7 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
     const monthEnd = endOfMonth(calendarMonth);
     const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
     const startDay = monthStart.getDay(); // 0 is Sunday
-    
+
     const blanks = Array(startDay).fill(null);
 
     const nextMonth = () => setCalendarMonth(addMonths(calendarMonth, 1));
@@ -199,14 +198,14 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
             </div>
           </div>
         </div>
-        
+
         <div className="grid grid-cols-7 gap-y-4 text-center">
           {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
             <div key={`${d}-${i}`} className="text-[10px] font-bold text-warm-ink/20">{d}</div>
           ))}
-          
+
           {blanks.map((_, i) => <div key={`blank-${i}`}></div>)}
-          
+
           {days.map(day => {
             const dateStr = format(day, 'yyyy-MM-dd');
             const log = logs[dateStr];
@@ -222,15 +221,15 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
                 )}>
                   {format(day, 'd')}
                 </span>
-                
+
                 {/* Mood Indicator Ring */}
                 {hasMood && (
                   <div className={cn(
                     "absolute w-8 h-8 rounded-full border-2 opacity-40",
                     log.mood === 'great' ? "border-warm-rose" :
-                    log.mood === 'good' ? "border-warm-sage" :
-                    log.mood === 'neutral' ? "border-warm-accent" :
-                    "border-warm-ink/20"
+                      log.mood === 'good' ? "border-warm-sage" :
+                        log.mood === 'neutral' ? "border-warm-accent" :
+                          "border-warm-ink/20"
                   )}></div>
                 )}
 
@@ -251,7 +250,7 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
   };
 
   const SummaryCard = ({ title, value, unit, icon: Icon, color, trend, onClick }: any) => (
-    <button 
+    <button
       onClick={onClick}
       className="bg-white p-5 rounded-3xl border border-warm-cream shadow-sm flex flex-col justify-between h-36 transition-all duration-500 hover:shadow-md text-left w-full"
     >
@@ -288,7 +287,7 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
     <div className="space-y-8 pb-12">
       {/* View Toggle - Health App Style */}
       <div className="flex p-1 bg-warm-cream/50 rounded-2xl w-full">
-        <button 
+        <button
           onClick={() => setView('week')}
           className={cn(
             "flex-1 py-2 rounded-xl text-xs font-bold transition-all",
@@ -297,7 +296,7 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
         >
           Week
         </button>
-        <button 
+        <button
           onClick={() => setView('month')}
           className={cn(
             "flex-1 py-2 rounded-xl text-xs font-bold transition-all",
@@ -312,30 +311,24 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
       <section>
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-bold font-serif text-warm-ink">Highlights</h3>
-          <button 
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="text-xs font-bold text-warm-accent"
-          >
-            {isExpanded ? 'Show Less' : 'Show More'}
-          </button>
         </div>
-        
+
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <SummaryCard 
-              title="Avg Mood" 
-              value={stats.avgMood} 
-              icon={Heart} 
-              color="text-warm-rose" 
+            <SummaryCard
+              title="Avg Mood"
+              value={stats.avgMood}
+              icon={Heart}
+              color="text-warm-rose"
               trend="Stable"
               onClick={() => setActiveDetail(activeDetail === 'mood' ? null : 'mood')}
             />
-            <SummaryCard 
-              title="Habit Score" 
-              value={stats.completion} 
-              unit="%" 
-              icon={Zap} 
-              color="text-warm-accent" 
+            <SummaryCard
+              title="Habit Score"
+              value={stats.completion}
+              unit="%"
+              icon={Zap}
+              color="text-warm-accent"
               trend="5% vs last week"
               onClick={() => setActiveDetail(activeDetail === 'habits' ? null : 'habits')}
             />
@@ -366,7 +359,7 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
                             <span>{count} days</span>
                           </div>
                           <div className="h-1.5 bg-warm-cream rounded-full overflow-hidden">
-                            <motion.div 
+                            <motion.div
                               initial={{ width: 0 }}
                               animate={{ width: `${percentage}%` }}
                               className="h-full bg-warm-rose"
@@ -411,54 +404,33 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
           </AnimatePresence>
 
           <CalendarCycle />
-          
-          <AnimatePresence>
-            {isExpanded && (
-              <>
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                >
-                  <SummaryCard 
-                    title="Best Day" 
-                    value={stats.bestDay} 
-                    icon={Calendar} 
-                    color="text-warm-sage" 
-                  />
-                </motion.div>
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                >
-                  <SummaryCard 
-                    title="Streak" 
-                    value={stats.streak} 
-                    unit="Days"
-                    icon={TrendingUp} 
-                    color="text-warm-accent" 
-                  />
-                </motion.div>
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  className="col-span-2"
-                >
-                  <div className="bg-white p-5 rounded-3xl border border-warm-cream shadow-sm flex items-center gap-4">
-                    <div className="p-3 rounded-2xl bg-warm-cream text-warm-accent">
-                      <Info size={20} />
-                    </div>
-                    <div>
-                      <div className="text-[10px] font-bold text-warm-ink/40 uppercase tracking-widest">Total Reflections</div>
-                      <div className="text-xl font-bold font-serif text-warm-ink">{stats.totalReflections} notes written</div>
-                    </div>
-                  </div>
-                </motion.div>
-              </>
-            )}
-          </AnimatePresence>
+
+          <div className="grid grid-cols-2 gap-4">
+            <SummaryCard
+              title="Best Day"
+              value={stats.bestDay}
+              icon={Calendar}
+              color="text-warm-sage"
+            />
+            <SummaryCard
+              title="Streak"
+              value={stats.streak}
+              unit="Days"
+              icon={TrendingUp}
+              color="text-warm-accent"
+            />
+            <div className="col-span-2">
+              <div className="bg-white p-5 rounded-3xl border border-warm-cream shadow-sm flex items-center gap-4">
+                <div className="p-3 rounded-2xl bg-warm-cream text-warm-accent">
+                  <Info size={20} />
+                </div>
+                <div>
+                  <div className="text-[10px] font-bold text-warm-ink/40 uppercase tracking-widest">Total Reflections</div>
+                  <div className="text-xl font-bold font-serif text-warm-ink">{stats.totalReflections} notes written</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -473,7 +445,7 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
             <div className="text-3xl font-bold font-serif text-warm-ink">{stats.avgMoodValue}</div>
             <div className="text-[10px] font-bold text-warm-ink/40 uppercase tracking-widest">Average Score</div>
           </div>
-          <div 
+          <div
             ref={scrollRefMood}
             className="overflow-x-auto scrollbar-hide touch-pan-x"
           >
@@ -482,26 +454,26 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
                 <AreaChart data={chartData} margin={{ top: 10, right: 20, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorMood" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#c38d9e" stopOpacity={0.4}/>
-                      <stop offset="95%" stopColor="#c38d9e" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#c38d9e" stopOpacity={0.4} />
+                      <stop offset="95%" stopColor="#c38d9e" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f5f2ed" />
-                  <XAxis 
-                    dataKey="shortName" 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{ fontSize: 10, fill: '#4a3f35', opacity: 0.4, fontWeight: 600 }} 
+                  <XAxis
+                    dataKey="shortName"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 10, fill: '#4a3f35', opacity: 0.4, fontWeight: 600 }}
                     interval={view === 'month' ? 4 : 0}
                   />
-                  <YAxis 
-                    domain={[1, 5]} 
+                  <YAxis
+                    domain={[1, 5]}
                     ticks={[1, 2, 3, 4, 5]}
                     axisLine={false}
                     tickLine={false}
                     tick={{ fontSize: 10, fill: '#4a3f35', opacity: 0.2 }}
                   />
-                  <Tooltip 
+                  <Tooltip
                     content={({ active, payload }) => {
                       if (active && payload && payload.length) {
                         return (
@@ -513,13 +485,13 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
                       return null;
                     }}
                   />
-                  <Area 
-                    type="monotone" 
-                    dataKey="mood" 
-                    stroke="#c38d9e" 
-                    strokeWidth={4} 
-                    fillOpacity={1} 
-                    fill="url(#colorMood)" 
+                  <Area
+                    type="monotone"
+                    dataKey="mood"
+                    stroke="#c38d9e"
+                    strokeWidth={4}
+                    fillOpacity={1}
+                    fill="url(#colorMood)"
                     connectNulls
                     animationDuration={1500}
                     dot={{ r: 4, fill: '#c38d9e', strokeWidth: 2, stroke: '#fff' }}
@@ -543,7 +515,7 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
             <div className="text-3xl font-bold font-serif text-warm-ink">{stats.completion}%</div>
             <div className="text-[10px] font-bold text-warm-ink/40 uppercase tracking-widest">Completion Rate</div>
           </div>
-          <div 
+          <div
             ref={scrollRefHabit}
             className="overflow-x-auto scrollbar-hide touch-pan-x"
           >
@@ -551,19 +523,19 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData} margin={{ top: 10, right: 20, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f5f2ed" />
-                  <XAxis 
-                    dataKey="shortName" 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{ fontSize: 10, fill: '#4a3f35', opacity: 0.4, fontWeight: 600 }} 
+                  <XAxis
+                    dataKey="shortName"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 10, fill: '#4a3f35', opacity: 0.4, fontWeight: 600 }}
                     interval={view === 'month' ? 4 : 0}
                   />
-                  <YAxis 
+                  <YAxis
                     axisLine={false}
                     tickLine={false}
                     tick={{ fontSize: 10, fill: '#4a3f35', opacity: 0.2 }}
                   />
-                  <Tooltip 
+                  <Tooltip
                     cursor={{ fill: '#fdfcf8', radius: 12 }}
                     content={({ active, payload }) => {
                       if (active && payload && payload.length) {
@@ -578,9 +550,9 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
                   />
                   <Bar dataKey="habits" radius={[8, 8, 8, 8]} barSize={view === 'month' ? 16 : 24}>
                     {chartData.map((entry, index) => (
-                      <Cell 
-                        key={`cell-${index}`} 
-                        fill={entry.habits > 0 ? '#e8a87c' : '#f5f2ed'} 
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={entry.habits > 0 ? '#e8a87c' : '#f5f2ed'}
                         fillOpacity={entry.habits > 0 ? 1 : 0.5}
                       />
                     ))}
@@ -602,9 +574,9 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
             <h4 className="text-lg font-bold font-serif text-warm-ink">Cycle Analysis</h4>
           </div>
           <p className="text-sm text-warm-ink/70 leading-relaxed mb-6">
-            Based on your {stats.entriesCount} entries this month, your emotional landscape has been <span className="font-bold text-warm-ink">{stats.stability.toLowerCase()}</span>. 
-            {stats.completion > 50 
-              ? ` Your habit consistency (${stats.completion}%) is supporting your ${stats.stability.toLowerCase()} flow.` 
+            Based on your {stats.entriesCount} entries this month, your emotional landscape has been <span className="font-bold text-warm-ink">{stats.stability.toLowerCase()}</span>.
+            {stats.completion > 50
+              ? ` Your habit consistency (${stats.completion}%) is supporting your ${stats.stability.toLowerCase()} flow.`
               : " Building more consistent daily rituals could help stabilize your emotional rhythm."}
           </p>
           <div className="flex gap-4">
@@ -631,7 +603,7 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
               <p className="text-[10px] text-warm-ink/40">Your data is stored locally on this device.</p>
             </div>
           </div>
-          <button 
+          <button
             onClick={exportData}
             className="w-full py-3 bg-white border border-warm-cream rounded-2xl text-xs font-bold text-warm-ink shadow-sm active:scale-95 transition-all flex items-center justify-center gap-2"
           >
