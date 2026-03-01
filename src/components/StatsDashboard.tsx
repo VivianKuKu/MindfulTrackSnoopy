@@ -13,9 +13,9 @@ import {
   Area
 } from 'recharts';
 import { DayLog, Mood } from '../types';
-import { format, subDays, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, parseISO, subMonths } from 'date-fns';
+import { format, subDays, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, parseISO, subMonths, addMonths } from 'date-fns';
 import { cn } from '../utils';
-import { Calendar, TrendingUp, Zap, Heart, Activity, Info, ChevronRight } from 'lucide-react';
+import { Calendar, TrendingUp, Zap, Heart, Activity, Info, ChevronRight, ChevronLeft, Shield, Download } from 'lucide-react';
 
 interface StatsDashboardProps {
   logs: Record<string, DayLog>;
@@ -40,6 +40,8 @@ const moodLabels: Record<number, string> = {
 export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs }) => {
   const [view, setView] = useState<'week' | 'month'>('week');
   const [isExpanded, setIsExpanded] = useState(false);
+  const [activeDetail, setActiveDetail] = useState<'mood' | 'habits' | null>(null);
+  const [calendarMonth, setCalendarMonth] = useState(new Date());
   const scrollRefMood = useRef<HTMLDivElement>(null);
   const scrollRefHabit = useRef<HTMLDivElement>(null);
 
@@ -56,8 +58,8 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs }) => {
       const log = logs[dateStr];
       
       return {
-        name: view === 'week' ? format(date, 'EEE') : format(date, 'MMM d'),
-        shortName: view === 'week' ? format(date, 'EEEEE') : format(date, 'd'),
+        name: format(date, 'do MMM'),
+        shortName: view === 'week' ? format(date, 'EEE') : format(date, 'd'),
         fullDate: dateStr,
         mood: log?.mood ? moodValues[log.mood] : null,
         habits: log?.habits?.length || 0,
@@ -71,14 +73,14 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       if (scrollRefMood.current) {
-        scrollRefMood.current.scrollTo({ left: scrollRefMood.current.scrollWidth, behavior: 'smooth' });
+        scrollRefMood.current.scrollTo({ left: scrollRefMood.current.scrollWidth, behavior: 'auto' });
       }
       if (scrollRefHabit.current) {
-        scrollRefHabit.current.scrollTo({ left: scrollRefHabit.current.scrollWidth, behavior: 'smooth' });
+        scrollRefHabit.current.scrollTo({ left: scrollRefHabit.current.scrollWidth, behavior: 'auto' });
       }
-    }, 100);
+    }, 150);
     return () => clearTimeout(timer);
-  }, [view]);
+  }, [view, logs]);
 
   const calculateStats = () => {
     const last30DaysDates = Array.from({ length: 30 }).map((_, i) => format(subDays(today, i), 'yyyy-MM-dd'));
@@ -87,6 +89,12 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs }) => {
     const avgMoodValue = last30DaysLogs.reduce((acc, log) => acc + (log.mood ? moodValues[log.mood] : 0), 0) / (last30DaysLogs.length || 1);
     const habitCompletionRate = (last30DaysLogs.reduce((acc, log) => acc + (log.habits?.length || 0), 0) / (last30DaysLogs.length * 4 || 1)) * 100;
     
+    // Mood distribution for detail view
+    const moodDistribution = last30DaysLogs.reduce((acc, log) => {
+      if (log.mood) acc[log.mood] = (acc[log.mood] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
     // Volatility calculation
     const moodVolatility = last30DaysLogs.reduce((acc, log, i, arr) => {
       if (i === 0 || !log.mood || !arr[i-1]?.mood) return acc;
@@ -127,6 +135,7 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs }) => {
     return {
       avgMood: moodLabels[Math.round(avgMoodValue)] || 'Neutral',
       avgMoodValue: avgMoodValue.toFixed(1),
+      moodDistribution,
       completion: Math.round(habitCompletionRate),
       stability: moodVolatility < 0.8 ? 'Steady' : moodVolatility < 1.5 ? 'Balanced' : 'Dynamic',
       bestDay,
@@ -137,8 +146,96 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs }) => {
 
   const stats = calculateStats();
 
-  const SummaryCard = ({ title, value, unit, icon: Icon, color, trend }: any) => (
-    <div className="bg-white p-5 rounded-3xl border border-warm-cream shadow-sm flex flex-col justify-between h-36 transition-all duration-500 hover:shadow-md">
+  const CalendarCycle = () => {
+    const monthStart = startOfMonth(calendarMonth);
+    const monthEnd = endOfMonth(calendarMonth);
+    const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
+    const startDay = monthStart.getDay(); // 0 is Sunday
+    
+    const blanks = Array(startDay).fill(null);
+
+    const nextMonth = () => setCalendarMonth(addMonths(calendarMonth, 1));
+    const prevMonth = () => setCalendarMonth(subMonths(calendarMonth, 1));
+
+    return (
+      <div className="bg-white p-6 rounded-[2.5rem] border border-warm-cream shadow-sm">
+        <div className="flex justify-between items-center mb-6">
+          <div className="flex items-center gap-3">
+            <button onClick={prevMonth} className="p-1 hover:bg-warm-cream rounded-lg transition-colors">
+              <ChevronLeft size={16} className="text-warm-ink/40" />
+            </button>
+            <h4 className="text-sm font-bold text-warm-ink uppercase tracking-widest">{format(calendarMonth, 'MMMM yyyy')}</h4>
+            <button onClick={nextMonth} className="p-1 hover:bg-warm-cream rounded-lg transition-colors">
+              <ChevronRight size={16} className="text-warm-ink/40" />
+            </button>
+          </div>
+          <div className="flex gap-2">
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 rounded-full bg-warm-rose"></div>
+              <span className="text-[8px] font-bold text-warm-ink/40 uppercase">Mood</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 rounded-full bg-warm-accent"></div>
+              <span className="text-[8px] font-bold text-warm-ink/40 uppercase">Habits</span>
+            </div>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-7 gap-y-4 text-center">
+          {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
+            <div key={`${d}-${i}`} className="text-[10px] font-bold text-warm-ink/20">{d}</div>
+          ))}
+          
+          {blanks.map((_, i) => <div key={`blank-${i}`}></div>)}
+          
+          {days.map(day => {
+            const dateStr = format(day, 'yyyy-MM-dd');
+            const log = logs[dateStr];
+            const hasMood = !!log?.mood;
+            const habitCount = log?.habits?.length || 0;
+            const isToday = isSameDay(day, today);
+
+            return (
+              <div key={dateStr} className="relative flex flex-col items-center justify-center h-10">
+                <span className={cn(
+                  "text-xs font-medium z-10",
+                  isToday ? "text-warm-accent font-bold" : "text-warm-ink/60"
+                )}>
+                  {format(day, 'd')}
+                </span>
+                
+                {/* Mood Indicator Ring */}
+                {hasMood && (
+                  <div className={cn(
+                    "absolute w-8 h-8 rounded-full border-2 opacity-40",
+                    log.mood === 'great' ? "border-warm-rose" :
+                    log.mood === 'good' ? "border-warm-sage" :
+                    log.mood === 'neutral' ? "border-warm-accent" :
+                    "border-warm-ink/20"
+                  )}></div>
+                )}
+
+                {/* Habit Dots */}
+                {habitCount > 0 && (
+                  <div className="absolute -bottom-1 flex gap-0.5">
+                    {Array.from({ length: Math.min(habitCount, 3) }).map((_, i) => (
+                      <div key={i} className="w-1 h-1 rounded-full bg-warm-accent"></div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
+  const SummaryCard = ({ title, value, unit, icon: Icon, color, trend, onClick }: any) => (
+    <button 
+      onClick={onClick}
+      className="bg-white p-5 rounded-3xl border border-warm-cream shadow-sm flex flex-col justify-between h-36 transition-all duration-500 hover:shadow-md text-left w-full"
+    >
       <div className="flex justify-between items-start">
         <div className={cn("p-2 rounded-xl bg-opacity-10", color.replace('text-', 'bg-'))}>
           <Icon size={18} className={color} />
@@ -153,8 +250,20 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs }) => {
         </div>
         {trend && <div className="text-[10px] font-medium text-warm-sage mt-1">↑ {trend}</div>}
       </div>
-    </div>
+    </button>
   );
+
+  const exportData = () => {
+    const data = localStorage.getItem('mindful-track-state');
+    if (!data) return;
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `mindful-track-backup-${format(new Date(), 'yyyy-MM-dd')}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="space-y-8 pb-12">
@@ -191,22 +300,98 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs }) => {
             {isExpanded ? 'Show Less' : 'Show More'}
           </button>
         </div>
-        <div className="grid grid-cols-2 gap-4">
-          <SummaryCard 
-            title="Avg Mood" 
-            value={stats.avgMood} 
-            icon={Heart} 
-            color="text-warm-rose" 
-            trend="Stable"
-          />
-          <SummaryCard 
-            title="Habit Score" 
-            value={stats.completion} 
-            unit="%" 
-            icon={Zap} 
-            color="text-warm-accent" 
-            trend="5% vs last week"
-          />
+        
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <SummaryCard 
+              title="Avg Mood" 
+              value={stats.avgMood} 
+              icon={Heart} 
+              color="text-warm-rose" 
+              trend="Stable"
+              onClick={() => setActiveDetail(activeDetail === 'mood' ? null : 'mood')}
+            />
+            <SummaryCard 
+              title="Habit Score" 
+              value={stats.completion} 
+              unit="%" 
+              icon={Zap} 
+              color="text-warm-accent" 
+              trend="5% vs last week"
+              onClick={() => setActiveDetail(activeDetail === 'habits' ? null : 'habits')}
+            />
+          </div>
+
+          <AnimatePresence>
+            {activeDetail === 'mood' && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="bg-white p-6 rounded-[2.5rem] border border-warm-cream shadow-sm space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h4 className="text-xs font-bold text-warm-ink uppercase tracking-widest">Mood Distribution</h4>
+                    <span className="text-[10px] text-warm-ink/40">Last 30 Days</span>
+                  </div>
+                  <div className="space-y-3">
+                    {(['great', 'good', 'neutral', 'bad', 'terrible'] as Mood[]).map((moodKey) => {
+                      const count = stats.moodDistribution[moodKey] || 0;
+                      const label = moodKey.charAt(0).toUpperCase() + moodKey.slice(1);
+                      const percentage = (count / 30) * 100;
+                      return (
+                        <div key={moodKey} className="space-y-1">
+                          <div className="flex justify-between text-[10px] font-medium">
+                            <span>{label}</span>
+                            <span>{count} days</span>
+                          </div>
+                          <div className="h-1.5 bg-warm-cream rounded-full overflow-hidden">
+                            <motion.div 
+                              initial={{ width: 0 }}
+                              animate={{ width: `${percentage}%` }}
+                              className="h-full bg-warm-rose"
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {activeDetail === 'habits' && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="bg-white p-6 rounded-[2.5rem] border border-warm-cream shadow-sm space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h4 className="text-xs font-bold text-warm-ink uppercase tracking-widest">Consistency Insights</h4>
+                    <span className="text-[10px] text-warm-ink/40">Last 30 Days</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 bg-warm-cream/30 rounded-2xl">
+                      <div className="text-[10px] font-bold text-warm-ink/40 uppercase mb-1">Stability</div>
+                      <div className="text-lg font-serif font-bold text-warm-ink">{stats.stability}</div>
+                    </div>
+                    <div className="p-4 bg-warm-cream/30 rounded-2xl">
+                      <div className="text-[10px] font-bold text-warm-ink/40 uppercase mb-1">Best Day</div>
+                      <div className="text-lg font-serif font-bold text-warm-ink">{stats.bestDay}</div>
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-warm-ink/50 leading-relaxed italic">
+                    "Your {stats.bestDay}s are consistently your most productive days. Try to schedule your most important tasks then."
+                  </p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <CalendarCycle />
           
           <AnimatePresence>
             {isExpanded && (
@@ -271,11 +456,11 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs }) => {
           </div>
           <div 
             ref={scrollRefMood}
-            className="overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing"
+            className="overflow-x-auto scrollbar-hide touch-pan-x"
           >
-            <div style={{ width: view === 'month' ? '800px' : '100%' }} className="h-64 p-6 pt-2">
+            <div style={{ width: view === 'month' ? '1200px' : '100%' }} className="h-64 p-6 pt-2">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <AreaChart data={chartData} margin={{ top: 10, right: 20, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorMood" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#c38d9e" stopOpacity={0.4}/>
@@ -288,7 +473,7 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs }) => {
                     axisLine={false} 
                     tickLine={false} 
                     tick={{ fontSize: 10, fill: '#4a3f35', opacity: 0.4, fontWeight: 600 }} 
-                    interval={view === 'month' ? 2 : 0}
+                    interval={view === 'month' ? 4 : 0}
                   />
                   <YAxis 
                     domain={[1, 5]} 
@@ -318,6 +503,8 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs }) => {
                     fill="url(#colorMood)" 
                     connectNulls
                     animationDuration={1500}
+                    dot={{ r: 4, fill: '#c38d9e', strokeWidth: 2, stroke: '#fff' }}
+                    activeDot={{ r: 6, strokeWidth: 0 }}
                   />
                 </AreaChart>
               </ResponsiveContainer>
@@ -339,18 +526,18 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs }) => {
           </div>
           <div 
             ref={scrollRefHabit}
-            className="overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing"
+            className="overflow-x-auto scrollbar-hide touch-pan-x"
           >
-            <div style={{ width: view === 'month' ? '800px' : '100%' }} className="h-64 p-6 pt-2">
+            <div style={{ width: view === 'month' ? '1200px' : '100%' }} className="h-64 p-6 pt-2">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <BarChart data={chartData} margin={{ top: 10, right: 20, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f5f2ed" />
                   <XAxis 
                     dataKey="shortName" 
                     axisLine={false} 
                     tickLine={false} 
                     tick={{ fontSize: 10, fill: '#4a3f35', opacity: 0.4, fontWeight: 600 }} 
-                    interval={view === 'month' ? 2 : 0}
+                    interval={view === 'month' ? 4 : 0}
                   />
                   <YAxis 
                     axisLine={false}
@@ -370,7 +557,7 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs }) => {
                       return null;
                     }}
                   />
-                  <Bar dataKey="habits" radius={[8, 8, 8, 8]} barSize={view === 'month' ? 12 : 24}>
+                  <Bar dataKey="habits" radius={[8, 8, 8, 8]} barSize={view === 'month' ? 16 : 24}>
                     {chartData.map((entry, index) => (
                       <Cell 
                         key={`cell-${index}`} 
@@ -409,6 +596,27 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs }) => {
               <div className="font-bold text-warm-ink">4 Days</div>
             </div>
           </div>
+        </div>
+      </section>
+      {/* Data Safety Section */}
+      <section className="pt-4">
+        <div className="bg-warm-cream/30 p-6 rounded-[2.5rem] border border-warm-cream/50 space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-white rounded-xl text-warm-accent shadow-sm">
+              <Shield size={18} />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-warm-ink">Data Safety</h4>
+              <p className="text-[10px] text-warm-ink/40">Your data is stored locally on this device.</p>
+            </div>
+          </div>
+          <button 
+            onClick={exportData}
+            className="w-full py-3 bg-white border border-warm-cream rounded-2xl text-xs font-bold text-warm-ink shadow-sm active:scale-95 transition-all flex items-center justify-center gap-2"
+          >
+            <Download size={14} />
+            Export Backup
+          </button>
         </div>
       </section>
     </div>

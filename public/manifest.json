@@ -1,0 +1,17 @@
+{
+  "name": "MindfulTrack",
+  "short_name": "Mindful",
+  "description": "A heartfelt daily mood and habit tracker.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fdfcf8",
+  "theme_color": "#fdfcf8",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

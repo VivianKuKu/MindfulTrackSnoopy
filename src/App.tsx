@@ -117,24 +117,28 @@ export default function App() {
           <h1 className="text-4xl font-bold tracking-tight text-warm-ink mb-1">
             {activeTab === 'today' ? 'Daily Ritual' : activeTab === 'stats' ? 'Your Journey' : 'Reflections'}
           </h1>
-          <p className="text-warm-ink/40 font-medium tracking-wide text-sm uppercase">
-            {format(selectedDate, 'EEEE, MMMM do')}
-          </p>
+          {activeTab !== 'history' && (
+            <p className="text-warm-ink/40 font-medium tracking-wide text-sm uppercase">
+              {format(selectedDate, 'EEEE, do MMMM yyyy')}
+            </p>
+          )}
         </div>
-        <div className="flex gap-2">
-          <button 
-            onClick={() => changeDate(-1)}
-            className="p-2.5 bg-white rounded-2xl border border-warm-cream shadow-sm hover:bg-warm-cream transition-all active:scale-90"
-          >
-            <ChevronLeft size={20} className="text-warm-ink/60" />
-          </button>
-          <button 
-            onClick={() => changeDate(1)}
-            className="p-2.5 bg-white rounded-2xl border border-warm-cream shadow-sm hover:bg-warm-cream transition-all active:scale-90"
-          >
-            <ChevronRight size={20} className="text-warm-ink/60" />
-          </button>
-        </div>
+        {activeTab !== 'history' && (
+          <div className="flex gap-2">
+            <button 
+              onClick={() => changeDate(-1)}
+              className="p-2.5 bg-white rounded-2xl border border-warm-cream shadow-sm hover:bg-warm-cream transition-all active:scale-90"
+            >
+              <ChevronLeft size={20} className="text-warm-ink/60" />
+            </button>
+            <button 
+              onClick={() => changeDate(1)}
+              className="p-2.5 bg-white rounded-2xl border border-warm-cream shadow-sm hover:bg-warm-cream transition-all active:scale-90"
+            >
+              <ChevronRight size={20} className="text-warm-ink/60" />
+            </button>
+          </div>
+        )}
       </header>
 
       {/* Main Content */}
@@ -195,60 +199,29 @@ export default function App() {
               exit={{ opacity: 0, y: -15 }}
               className="space-y-6"
             >
-              {Object.keys(state.logs).length === 0 ? (
+              {Object.values(state.logs).filter(l => (l as DayLog).note?.trim()).length === 0 ? (
                 <div className="bg-white p-10 rounded-[2.5rem] border border-warm-cream text-center space-y-4 shadow-sm">
                   <div className="w-16 h-16 bg-warm-cream rounded-3xl flex items-center justify-center mx-auto text-warm-accent">
-                    <Calendar size={32} />
+                    <Sparkles size={32} />
                   </div>
                   <h3 className="text-2xl font-serif font-bold">The Memory Book</h3>
-                  <p className="text-warm-ink/50 leading-relaxed">Your journey hasn't started yet. Start tracking today to fill these pages.</p>
+                  <p className="text-warm-ink/50 leading-relaxed">Your quiet reflections will appear here. Start writing today.</p>
                 </div>
               ) : (
                 <div className="space-y-4">
                   {(Object.values(state.logs) as DayLog[])
+                    .filter(log => log.note?.trim())
                     .sort((a, b) => b.date.localeCompare(a.date))
                     .map((log) => (
-                      <div key={log.date} className="bg-white p-6 rounded-[2rem] border border-warm-cream shadow-sm space-y-4">
+                      <div key={log.date} className="bg-white p-6 rounded-[2rem] border border-warm-cream shadow-sm space-y-3">
                         <div className="flex justify-between items-center">
-                          <div className="flex flex-col">
-                            <span className="text-xs font-bold text-warm-ink/30 uppercase tracking-widest">
-                              {format(new Date(log.date + 'T12:00:00'), 'EEEE')}
-                            </span>
-                            <span className="text-lg font-serif font-bold text-warm-ink">
-                              {format(new Date(log.date + 'T12:00:00'), 'MMMM do')}
-                            </span>
-                          </div>
-                          {log.mood && (
-                            <div className="w-10 h-10 rounded-2xl bg-warm-cream flex items-center justify-center text-xl">
-                              {log.mood === 'great' && '❤️'}
-                              {log.mood === 'good' && '😊'}
-                              {log.mood === 'neutral' && '😐'}
-                              {log.mood === 'bad' && '😔'}
-                              {log.mood === 'terrible' && '🌧️'}
-                            </div>
-                          )}
+                          <span className="text-xs font-bold text-warm-ink/30 uppercase tracking-widest">
+                            {format(new Date(log.date + 'T12:00:00'), 'do MMMM yyyy')}
+                          </span>
                         </div>
-                        
-                        {log.habits.length > 0 && (
-                          <div className="flex flex-wrap gap-2">
-                            {log.habits.map(habitId => {
-                              const habit = state.habits.find(h => h.id === habitId);
-                              return habit ? (
-                                <span key={habitId} className="px-3 py-1 bg-warm-cream/50 rounded-full text-xs font-medium text-warm-ink/60">
-                                  {habit.icon} {habit.name}
-                                </span>
-                              ) : null;
-                            })}
-                          </div>
-                        )}
-
-                        {log.note && (
-                          <div className="pt-2 border-t border-warm-cream/50">
-                            <p className="text-warm-ink/70 font-serif italic leading-relaxed">
-                              "{log.note}"
-                            </p>
-                          </div>
-                        )}
+                        <p className="text-warm-ink/80 font-serif text-lg italic leading-relaxed">
+                          "{log.note}"
+                        </p>
                       </div>
                     ))}
                 </div>
