@@ -84,6 +84,22 @@ export default function App() {
     setIsAddModalOpen(false);
   };
 
+  const moveHabit = (habitId: string, direction: 'up' | 'down') => {
+    setState(prev => {
+      const index = prev.habits.findIndex(h => h.id === habitId);
+      if (index === -1) return prev;
+      
+      const newHabits = [...prev.habits];
+      const targetIndex = direction === 'up' ? index - 1 : index + 1;
+      
+      if (targetIndex < 0 || targetIndex >= newHabits.length) return prev;
+      
+      [newHabits[index], newHabits[targetIndex]] = [newHabits[targetIndex], newHabits[index]];
+      
+      return { ...prev, habits: newHabits };
+    });
+  };
+
   const [habitToDelete, setHabitToDelete] = useState<string | null>(null);
 
   const confirmDelete = () => {
@@ -178,6 +194,7 @@ export default function App() {
                 completedIds={currentLog.habits} 
                 onToggle={toggleHabit}
                 onDelete={deleteHabit}
+                onMove={moveHabit}
                 onAdd={() => setIsAddModalOpen(true)}
               />
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check, Plus, Trash2 } from 'lucide-react';
+import { Check, Plus, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
 import { Habit } from '../types';
 import { cn } from '../utils';
 
@@ -8,10 +8,11 @@ interface HabitListProps {
   completedIds: string[];
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
+  onMove: (id: string, direction: 'up' | 'down') => void;
   onAdd?: () => void;
 }
 
-export const HabitList: React.FC<HabitListProps> = ({ habits, completedIds, onToggle, onDelete, onAdd }) => {
+export const HabitList: React.FC<HabitListProps> = ({ habits, completedIds, onToggle, onDelete, onMove, onAdd }) => {
   const [isManageMode, setIsManageMode] = React.useState(false);
 
   return (
@@ -68,9 +69,37 @@ export const HabitList: React.FC<HabitListProps> = ({ habits, completedIds, onTo
                 </div>
                 
                 {isManageMode ? (
-                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-rose-100 text-rose-600 animate-pulse">
-                    <span className="text-[10px] font-bold uppercase tracking-wider">Delete</span>
-                    <Trash2 size={14} />
+                  <div className="flex items-center gap-2">
+                    <div className="flex flex-col gap-1 mr-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onMove(habit.id, 'up');
+                        }}
+                        className="p-1.5 hover:bg-warm-cream rounded-lg text-warm-ink/40 hover:text-warm-ink transition-colors"
+                      >
+                        <ChevronUp size={16} />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onMove(habit.id, 'down');
+                        }}
+                        className="p-1.5 hover:bg-warm-cream rounded-lg text-warm-ink/40 hover:text-warm-ink transition-colors"
+                      >
+                        <ChevronDown size={16} />
+                      </button>
+                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete(habit.id);
+                      }}
+                      className="flex items-center gap-2 px-3 py-2 rounded-xl bg-rose-100 text-rose-600 hover:bg-rose-200 transition-colors"
+                    >
+                      <span className="text-[10px] font-bold uppercase tracking-wider">Delete</span>
+                      <Trash2 size={14} />
+                    </button>
                   </div>
                 ) : (
                   <div className={cn(
