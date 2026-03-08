@@ -14,6 +14,7 @@ import {
 } from 'recharts';
 import { DayLog, Mood, Habit } from '../types';
 import { format, subDays, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, parseISO, subMonths, addMonths } from 'date-fns';
+import { zhTW } from 'date-fns/locale';
 import { cn } from '../utils';
 import { Calendar, TrendingUp, Zap, Heart, Activity, Info, ChevronRight, ChevronLeft, Shield, Download } from 'lucide-react';
 import { MoodFace } from './MoodFace';
@@ -33,11 +34,11 @@ const moodValues: Record<Mood, number> = {
 };
 
 const moodLabels: Record<number, string> = {
-  5: 'Great',
-  4: 'Good',
-  3: 'Neutral',
-  2: 'Bad',
-  1: 'Terrible'
+  5: '極佳',
+  4: '不錯',
+  3: '平靜',
+  2: '不好',
+  1: '極差'
 };
 
 export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCount, habits }) => {
@@ -60,8 +61,8 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
       const log = logs[dateStr];
 
       return {
-        name: format(date, 'do MMM'),
-        shortName: view === 'week' ? format(date, 'EEE') : format(date, 'd'),
+        name: format(date, 'MMM do', { locale: zhTW }),
+        shortName: view === 'week' ? format(date, 'EEE', { locale: zhTW }) : format(date, 'd'),
         fullDate: dateStr,
         mood: log?.mood ? moodValues[log.mood] : null,
         habits: log?.habits?.length || 0,
@@ -116,14 +117,14 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
     const dayStats: Record<string, { sum: number, count: number }> = {};
     last30DaysLogs.forEach(log => {
       if (log.mood) {
-        const day = format(parseISO(log.date), 'EEEE');
+        const day = format(parseISO(log.date), 'EEEE', { locale: zhTW });
         if (!dayStats[day]) dayStats[day] = { sum: 0, count: 0 };
         dayStats[day].sum += moodValues[log.mood];
         dayStats[day].count += 1;
       }
     });
 
-    let bestDay = 'N/A';
+    let bestDay = '無';
     let maxAvg = 0;
     Object.entries(dayStats).forEach(([day, stat]) => {
       const avg = stat.sum / stat.count;
@@ -162,11 +163,11 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
     });
 
     return {
-      avgMood: moodLabels[Math.round(avgMoodValue)] || 'Neutral',
+      avgMood: moodLabels[Math.round(avgMoodValue)] || '平靜',
       avgMoodValue: avgMoodValue.toFixed(1),
       moodDistribution,
       completion: Math.round(habitCompletionRate),
-      stability: moodVolatility < 0.8 ? 'Steady' : moodVolatility < 1.5 ? 'Balanced' : 'Dynamic',
+      stability: moodVolatility < 0.8 ? '穩定' : moodVolatility < 1.5 ? '平靜' : '多變',
       bestDay,
       streak,
       totalReflections,
@@ -195,7 +196,7 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
             <button onClick={prevMonth} className="p-1 hover:bg-warm-cream rounded-lg transition-colors">
               <ChevronLeft size={16} className="text-warm-ink/40" />
             </button>
-            <h4 className="text-sm font-bold text-warm-ink uppercase tracking-widest">{format(calendarMonth, 'MMMM yyyy')}</h4>
+            <h4 className="text-sm font-bold text-warm-ink uppercase tracking-widest">{format(calendarMonth, 'yyyy年 MM月', { locale: zhTW })}</h4>
             <button onClick={nextMonth} className="p-1 hover:bg-warm-cream rounded-lg transition-colors">
               <ChevronRight size={16} className="text-warm-ink/40" />
             </button>
@@ -203,17 +204,17 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
           <div className="flex gap-2">
             <div className="flex items-center gap-1">
               <div className="w-2 h-2 rounded-full bg-mood-good"></div>
-              <span className="text-[8px] font-bold text-warm-ink/40 uppercase">Mood</span>
+              <span className="text-[8px] font-bold text-warm-ink/40 uppercase">心情</span>
             </div>
             <div className="flex items-center gap-1">
               <div className="w-2 h-2 rounded-full bg-warm-accent"></div>
-              <span className="text-[8px] font-bold text-warm-ink/40 uppercase">Habits</span>
+              <span className="text-[8px] font-bold text-warm-ink/40 uppercase">習慣</span>
             </div>
           </div>
         </div>
 
         <div className="grid grid-cols-7 gap-y-4 text-center">
-          {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d, i) => (
+          {['一', '二', '三', '四', '五', '六', '日'].map((d, i) => (
             <div key={`${d}-${i}`} className="text-[10px] font-bold text-warm-ink/20">{d}</div>
           ))}
 
@@ -316,7 +317,7 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
             view === 'week' ? "bg-white text-warm-ink shadow-sm" : "text-warm-ink/40"
           )}
         >
-          Week
+          週
         </button>
         <button
           onClick={() => setView('month')}
@@ -325,20 +326,20 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
             view === 'month' ? "bg-white text-warm-ink shadow-sm" : "text-warm-ink/40"
           )}
         >
-          Month
+          月
         </button>
       </div>
 
       {/* Highlights Section */}
       <section>
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold font-serif text-warm-ink">Highlights</h3>
+          <h3 className="text-xl font-bold font-serif text-warm-ink">重點摘要</h3>
         </div>
 
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <SummaryCard
-              title="Avg Mood"
+              title="平均心情"
               value={stats.avgMood}
               icon={Heart}
               color={
@@ -348,16 +349,16 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
                       Math.round(parseFloat(stats.avgMoodValue)) === 2 ? "text-mood-bad" :
                         "text-mood-terrible"
               }
-              trend="Stable"
+              trend="穩定"
               onClick={() => setActiveDetail(activeDetail === 'mood' ? null : 'mood')}
             />
             <SummaryCard
-              title="Habit Score"
+              title="習慣分數"
               value={stats.completion}
               unit="%"
               icon={Zap}
               color="text-warm-accent"
-              trend="5% vs last week"
+              trend="與上週相比 5%"
               onClick={() => setActiveDetail(activeDetail === 'habits' ? null : 'habits')}
             />
           </div>
@@ -372,8 +373,8 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
               >
                 <div className="bg-white p-6 rounded-[2.5rem] border border-warm-cream shadow-sm space-y-4">
                   <div className="flex justify-between items-center">
-                    <h4 className="text-xs font-bold text-warm-ink uppercase tracking-widest">Mood Distribution</h4>
-                    <span className="text-[10px] text-warm-ink/40">Last 30 Days</span>
+                    <h4 className="text-xs font-bold text-warm-ink uppercase tracking-widest">心情分佈</h4>
+                    <span className="text-[10px] text-warm-ink/40">過去 30 天</span>
                   </div>
                   <div className="space-y-3">
                     {(['great', 'good', 'neutral', 'bad', 'terrible'] as Mood[]).map((moodKey) => {
@@ -417,8 +418,8 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
               >
                 <div className="bg-white p-6 rounded-[2.5rem] border border-warm-cream shadow-sm space-y-4">
                   <div className="flex justify-between items-center">
-                    <h4 className="text-xs font-bold text-warm-ink uppercase tracking-widest">Consistency Insights</h4>
-                    <span className="text-[10px] text-warm-ink/40">Last 30 Days</span>
+                    <h4 className="text-xs font-bold text-warm-ink uppercase tracking-widest">習慣堅持度分析</h4>
+                    <span className="text-[10px] text-warm-ink/40">過去 30 天</span>
                   </div>
 
                   <div className="space-y-4 pt-2">
@@ -429,7 +430,7 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
                             <span>{habit.icon}</span>
                             <span>{habit.name}</span>
                           </div>
-                          <span className="text-warm-ink/60">{habit.count} days</span>
+                          <span className="text-warm-ink/60">{habit.count} 天</span>
                         </div>
                         <div className="h-1.5 bg-warm-cream rounded-full overflow-hidden">
                           <motion.div
@@ -444,16 +445,16 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
 
                   <div className="grid grid-cols-2 gap-4 mt-6">
                     <div className="p-4 bg-warm-cream/30 rounded-2xl">
-                      <div className="text-[10px] font-bold text-warm-ink/40 uppercase mb-1">Stability</div>
+                      <div className="text-[10px] font-bold text-warm-ink/40 uppercase mb-1">穩定度</div>
                       <div className="text-lg font-serif font-bold text-warm-ink">{stats.stability}</div>
                     </div>
                     <div className="p-4 bg-warm-cream/30 rounded-2xl">
-                      <div className="text-[10px] font-bold text-warm-ink/40 uppercase mb-1">Best Day</div>
+                      <div className="text-[10px] font-bold text-warm-ink/40 uppercase mb-1">最佳星期</div>
                       <div className="text-lg font-serif font-bold text-warm-ink">{stats.bestDay}</div>
                     </div>
                   </div>
                   <p className="text-[10px] text-warm-ink/50 leading-relaxed italic">
-                    "Your {stats.bestDay}s are consistently your most productive days. Try to schedule your most important tasks then."
+                    "你通常在{stats.bestDay}有最好的表現，試著在這些日子安排最重要的任務吧。"
                   </p>
                 </div>
               </motion.div>
@@ -464,27 +465,28 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
 
           <div className="grid grid-cols-2 gap-4">
             <SummaryCard
-              title="Best Day"
+              title="最佳星期"
               value={stats.bestDay}
               icon={Calendar}
               color="text-warm-sage"
             />
             <SummaryCard
-              title="Streak"
+              title="連續天數"
               value={stats.streak}
-              unit="Days"
+              unit="天"
               icon={TrendingUp}
               color="text-warm-accent"
             />
             <div className="col-span-2">
-              <div className="bg-white p-5 rounded-3xl border border-warm-cream shadow-sm flex items-center gap-4">
-                <div className="p-3 rounded-2xl bg-warm-cream text-warm-accent">
+              <div className="bg-white p-5 rounded-3xl border border-warm-cream shadow-sm flex items-center gap-4 relative overflow-hidden">
+                <div className="p-3 rounded-2xl bg-warm-cream text-warm-accent z-10">
                   <Info size={20} />
                 </div>
-                <div>
-                  <div className="text-[10px] font-bold text-warm-ink/40 uppercase tracking-widest">Total Reflections</div>
-                  <div className="text-xl font-bold font-serif text-warm-ink">{stats.totalReflections} notes written</div>
+                <div className="z-10">
+                  <div className="text-[10px] font-bold text-warm-ink/40 uppercase tracking-widest">反思總數</div>
+                  <div className="text-xl font-bold font-serif text-warm-ink">已寫下 {stats.totalReflections} 則筆記</div>
                 </div>
+                <img src="/woodstock.png" alt="Woodstock" className="absolute -right-2 -bottom-2 w-20 opacity-20 object-contain pointer-events-none" />
               </div>
             </div>
           </div>
@@ -494,13 +496,13 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
       {/* Mood Flow - Scrollable */}
       <section>
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold font-serif text-warm-ink">Mood Flow</h3>
+          <h3 className="text-xl font-bold font-serif text-warm-ink">心情起伏</h3>
           <Info size={16} className="text-warm-ink/20" />
         </div>
         <div className="bg-white rounded-[2.5rem] border border-warm-cream shadow-sm overflow-hidden">
           <div className="p-6 pb-2">
             <div className="text-3xl font-bold font-serif text-warm-ink">{stats.avgMoodValue}</div>
-            <div className="text-[10px] font-bold text-warm-ink/40 uppercase tracking-widest">Average Score</div>
+            <div className="text-[10px] font-bold text-warm-ink/40 uppercase tracking-widest">平均分數</div>
           </div>
           <div
             ref={scrollRefMood}
@@ -564,13 +566,13 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
       {/* Habit Rhythm - Scrollable */}
       <section>
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold font-serif text-warm-ink">Habit Rhythm</h3>
+          <h3 className="text-xl font-bold font-serif text-warm-ink">習慣節奏</h3>
           <Activity size={16} className="text-warm-ink/20" />
         </div>
         <div className="bg-white rounded-[2.5rem] border border-warm-cream shadow-sm overflow-hidden">
           <div className="p-6 pb-2">
             <div className="text-3xl font-bold font-serif text-warm-ink">{stats.completion}%</div>
-            <div className="text-[10px] font-bold text-warm-ink/40 uppercase tracking-widest">Completion Rate</div>
+            <div className="text-[10px] font-bold text-warm-ink/40 uppercase tracking-widest">完成率</div>
           </div>
           <div
             ref={scrollRefHabit}
@@ -628,27 +630,26 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
             <div className="p-2 bg-white rounded-xl shadow-sm">
               <TrendingUp size={20} className="text-warm-ink" />
             </div>
-            <h4 className="text-lg font-bold font-serif text-warm-ink">Cycle Analysis</h4>
+            <h4 className="text-lg font-bold font-serif text-warm-ink">週期分析</h4>
           </div>
           <p className="text-sm text-warm-ink/70 leading-relaxed mb-6">
-            Based on your {stats.entriesCount} entries this month, your emotional landscape has been <span className="font-bold text-warm-ink">{stats.stability.toLowerCase()}</span>.
+            根據你這個月的 {stats.entriesCount} 則紀錄，你的情緒狀態屬於 <span className="font-bold text-warm-ink">{stats.stability}</span>。
             {stats.completion > 50
-              ? ` Your habit consistency (${stats.completion}%) is supporting your ${stats.stability.toLowerCase()} flow.`
-              : " Building more consistent daily rituals could help stabilize your emotional rhythm."}
+              ? ` 你的習慣堅持度（${stats.completion}%）正幫助維持這份${stats.stability}的狀態。`
+              : " 建立更穩定的日常習慣，有助於平穩你的情緒節奏。"}
           </p>
           <div className="flex gap-4">
             <div className="flex-1 bg-white/50 backdrop-blur-sm p-4 rounded-2xl border border-white/50">
-              <div className="text-[10px] font-bold text-warm-ink/40 uppercase tracking-widest mb-1">Stability</div>
+              <div className="text-[10px] font-bold text-warm-ink/40 uppercase tracking-widest mb-1">穩定度</div>
               <div className="font-bold text-warm-ink">{stats.stability}</div>
             </div>
             <div className="flex-1 bg-white/50 backdrop-blur-sm p-4 rounded-2xl border border-white/50">
-              <div className="text-[10px] font-bold text-warm-ink/40 uppercase tracking-widest mb-1">Streak</div>
-              <div className="font-bold text-warm-ink">{stats.streak} Days</div>
+              <div className="text-[10px] font-bold text-warm-ink/40 uppercase tracking-widest mb-1">連續天數</div>
+              <div className="font-bold text-warm-ink">{stats.streak} 天</div>
             </div>
           </div>
         </div>
       </section>
-      {/* Data Safety Section */}
       <section className="pt-4">
         <div className="bg-warm-cream/30 p-6 rounded-[2.5rem] border border-warm-cream/50 space-y-4">
           <div className="flex items-center gap-3">
@@ -656,8 +657,8 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
               <Shield size={18} />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-warm-ink">Data Safety</h4>
-              <p className="text-[10px] text-warm-ink/40">Your data is stored locally on this device.</p>
+              <h4 className="text-sm font-bold text-warm-ink">資料安全</h4>
+              <p className="text-[10px] text-warm-ink/40">你的資料安全地儲存在你的設備上。</p>
             </div>
           </div>
           <button
@@ -665,7 +666,7 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
             className="w-full py-3 bg-white border border-warm-cream rounded-2xl text-xs font-bold text-warm-ink shadow-sm active:scale-95 transition-all flex items-center justify-center gap-2"
           >
             <Download size={14} />
-            Export Backup
+            匯出備份
           </button>
         </div>
       </section>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
+import { zhTW } from 'date-fns/locale';
 import {
   LayoutDashboard,
   Calendar,
@@ -20,10 +21,10 @@ import { AddHabitModal } from './components/AddHabitModal';
 import { cn } from './utils';
 
 const DEFAULT_HABITS: Habit[] = [
-  { id: '1', name: 'Meditation', icon: '🧘', color: 'rose' },
-  { id: '2', name: 'Exercise', icon: '🏃', color: 'emerald' },
-  { id: '3', name: 'Reading', icon: '📚', color: 'blue' },
-  { id: '4', name: 'Hydration', icon: '💧', color: 'cyan' },
+  { id: '1', name: '冥想', icon: '🧘', color: 'rose' },
+  { id: '2', name: '運動', icon: '🏃', color: 'emerald' },
+  { id: '3', name: '閱讀', icon: '📚', color: 'blue' },
+  { id: '4', name: '喝水', icon: '💧', color: 'cyan' },
 ];
 
 const STORAGE_KEY = 'mindfultrack_data_v1';
@@ -150,14 +151,15 @@ export default function App() {
   return (
     <div className="w-full max-w-md mx-auto min-h-screen bg-warm-bg flex flex-col pb-32 selection:bg-warm-accent/20">
       {/* Header */}
-      <header className="p-8 pt-14 flex justify-between items-end">
-        <div>
+      <header className="p-8 pt-14 flex justify-between items-end relative">
+        <img src="/snoopy.png" alt="Snoopy Theme" className="absolute top-2 right-4 w-28 opacity-90 object-contain pointer-events-none drop-shadow-md" style={{ transform: 'scaleX(-1)' }} />
+        <div className="z-10">
           <h1 className="text-4xl font-bold tracking-tight text-warm-ink mb-1">
-            {activeTab === 'today' ? 'Daily Ritual' : activeTab === 'stats' ? 'Your Journey' : 'Reflections'}
+            {activeTab === 'today' ? '今日儀式' : activeTab === 'stats' ? '成長軌跡' : '反思回顧'}
           </h1>
           {activeTab !== 'history' && (
             <p className="text-warm-ink/40 font-medium tracking-wide text-sm uppercase">
-              {format(selectedDate, 'EEEE, do MMMM yyyy')}
+              {format(selectedDate, 'yyyy年MM月dd日 EEEE', { locale: zhTW })}
             </p>
           )}
         </div>
@@ -191,7 +193,7 @@ export default function App() {
               className="space-y-10"
             >
               <section>
-                <h3 className="text-[10px] font-bold text-warm-ink/40 uppercase tracking-[0.2em] mb-5">How is your heart today?</h3>
+                <h3 className="text-[10px] font-bold text-warm-ink/40 uppercase tracking-[0.2em] mb-5">今天的心情如何？</h3>
                 <MoodSelector
                   selected={currentLog.mood}
                   onSelect={(mood) => updateLog({ mood })}
@@ -208,11 +210,11 @@ export default function App() {
               />
 
               <section>
-                <h3 className="text-[10px] font-bold text-warm-ink/40 uppercase tracking-[0.2em] mb-5">A quiet reflection</h3>
+                <h3 className="text-[10px] font-bold text-warm-ink/40 uppercase tracking-[0.2em] mb-5">靜心反思</h3>
                 <textarea
                   value={currentLog.note}
                   onChange={(e) => updateLog({ note: e.target.value })}
-                  placeholder="Whisper your thoughts here..."
+                  placeholder="在這裡寫下你的思緒..."
                   className="w-full h-40 p-6 rounded-[2rem] bg-white border border-warm-cream focus:ring-2 focus:ring-warm-accent focus:border-transparent outline-none transition-all resize-none placeholder:text-warm-ink/20 font-serif text-lg leading-relaxed"
                 />
               </section>
@@ -239,12 +241,12 @@ export default function App() {
               className="space-y-6"
             >
               {Object.values(state.logs).filter(l => (l as DayLog).note?.trim()).length === 0 ? (
-                <div className="bg-white p-10 rounded-[2.5rem] border border-warm-cream text-center space-y-4 shadow-sm">
-                  <div className="w-16 h-16 bg-warm-cream rounded-3xl flex items-center justify-center mx-auto text-warm-accent">
-                    <Sparkles size={32} />
+                <div className="bg-white p-10 rounded-[2.5rem] border border-warm-cream text-center space-y-4 shadow-sm relative overflow-hidden">
+                  <div className="w-20 h-20 bg-warm-cream rounded-full flex items-center justify-center mx-auto shadow-inner">
+                    <img src="/woodstock.png" alt="Woodstock" className="w-14 h-14 object-contain" />
                   </div>
-                  <h3 className="text-2xl font-serif font-bold">The Memory Book</h3>
-                  <p className="text-warm-ink/50 leading-relaxed">Your quiet reflections will appear here. Start writing today.</p>
+                  <h3 className="text-2xl font-serif font-bold">記憶相冊</h3>
+                  <p className="text-warm-ink/50 leading-relaxed">你的反思將呈現在此處。今天就開始記錄吧。</p>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -255,7 +257,7 @@ export default function App() {
                       <div key={log.date} className="bg-white p-6 rounded-[2rem] border border-warm-cream shadow-sm space-y-3">
                         <div className="flex justify-between items-center">
                           <span className="text-xs font-bold text-warm-ink/30 uppercase tracking-widest">
-                            {format(new Date(log.date + 'T12:00:00'), 'do MMMM yyyy')}
+                            {format(new Date(log.date + 'T12:00:00'), 'yyyy年MM月dd日', { locale: zhTW })}
                           </span>
                         </div>
                         <p className="text-warm-ink/80 font-serif text-lg italic leading-relaxed">
@@ -281,7 +283,7 @@ export default function App() {
             )}
           >
             <Sparkles size={20} className={activeTab === 'today' ? "animate-pulse" : ""} />
-            {activeTab === 'today' && <span className="font-bold text-sm tracking-tight">Today</span>}
+            {activeTab === 'today' && <span className="font-bold text-sm tracking-tight">今日</span>}
           </button>
 
           <button
@@ -292,7 +294,7 @@ export default function App() {
             )}
           >
             <LayoutDashboard size={20} />
-            {activeTab === 'stats' && <span className="font-bold text-sm tracking-tight">Journey</span>}
+            {activeTab === 'stats' && <span className="font-bold text-sm tracking-tight">軌跡</span>}
           </button>
 
           <button
@@ -303,7 +305,7 @@ export default function App() {
             )}
           >
             <Calendar size={20} />
-            {activeTab === 'history' && <span className="font-bold text-sm tracking-tight">Log</span>}
+            {activeTab === 'history' && <span className="font-bold text-sm tracking-tight">日誌</span>}
           </button>
         </div>
       </nav>
@@ -346,10 +348,9 @@ export default function App() {
               </div>
 
               <div className="space-y-2">
-                <h3 className="text-2xl font-serif font-bold text-warm-ink">Remove Habit?</h3>
+                <h3 className="text-2xl font-serif font-bold text-warm-ink">移除習慣？</h3>
                 <p className="text-warm-ink/50 leading-relaxed">
-                  Are you sure you want to remove <span className="font-bold text-warm-ink">"{state.habits.find(h => h.id === habitToDelete)?.name}"</span>?
-                  This will also clear it from your history.
+                  確定要移除 <span className="font-bold text-warm-ink">"{state.habits.find(h => h.id === habitToDelete)?.name}"</span> 嗎？這也會將其從歷史紀錄中清除。
                 </p>
               </div>
 
@@ -358,7 +359,7 @@ export default function App() {
                   onClick={() => setHabitToDelete(null)}
                   className="flex-1 py-4 rounded-2xl font-bold text-warm-ink/40 hover:bg-warm-cream transition-all"
                 >
-                  Cancel
+                  取消
                 </button>
                 <button
                   onClick={() => {
@@ -367,7 +368,7 @@ export default function App() {
                   }}
                   className="flex-1 py-4 bg-rose-500 text-white rounded-2xl font-bold shadow-lg shadow-rose-500/20 active:scale-95 transition-all"
                 >
-                  Remove
+                  移除
                 </button>
               </div>
             </motion.div>

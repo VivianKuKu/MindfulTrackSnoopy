@@ -20,24 +20,24 @@ export const HabitList: React.FC<HabitListProps> = ({ habits, completedIds, onTo
     <div className="space-y-3">
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-3">
-          <h3 className="text-sm font-bold text-warm-ink/50 uppercase tracking-widest">Daily Habits</h3>
-          <button 
+          <h3 className="text-sm font-bold text-warm-ink/50 uppercase tracking-widest">每日習慣</h3>
+          <button
             onClick={() => {
               if (window.navigator.vibrate) window.navigator.vibrate(20);
               setIsManageMode(!isManageMode);
             }}
             className={cn(
               "text-[10px] font-bold px-3 py-1.5 rounded-full transition-all uppercase tracking-wider border",
-              isManageMode 
-                ? "bg-rose-500 text-white border-rose-500 shadow-lg shadow-rose-500/20" 
+              isManageMode
+                ? "bg-rose-500 text-white border-rose-500 shadow-lg shadow-rose-500/20"
                 : "bg-white text-warm-ink/60 border-warm-cream hover:border-warm-accent/30"
             )}
           >
-            {isManageMode ? 'Done' : 'Manage'}
+            {isManageMode ? '完成' : '管理'}
           </button>
         </div>
         {onAdd && (
-          <button 
+          <button
             onClick={onAdd}
             className="p-1.5 hover:bg-warm-cream rounded-full transition-colors text-warm-accent"
           >
@@ -54,10 +54,10 @@ export const HabitList: React.FC<HabitListProps> = ({ habits, completedIds, onTo
                 onClick={() => isManageMode ? onDelete(habit.id) : onToggle(habit.id)}
                 className={cn(
                   "w-full flex items-center justify-between p-4 rounded-[1.5rem] border transition-all duration-300",
-                  isManageMode 
-                    ? "border-rose-200 bg-rose-50/30" 
-                    : isCompleted 
-                      ? "bg-warm-ink border-warm-ink text-warm-bg shadow-lg shadow-warm-ink/10" 
+                  isManageMode
+                    ? "border-rose-200 bg-rose-50/30"
+                    : isCompleted
+                      ? "bg-warm-ink border-warm-ink text-warm-bg shadow-lg shadow-warm-ink/10"
                       : "bg-white border-warm-cream hover:border-warm-accent/30"
                 )}
               >
@@ -68,7 +68,7 @@ export const HabitList: React.FC<HabitListProps> = ({ habits, completedIds, onTo
                     isManageMode && "text-rose-900"
                   )}>{habit.name}</span>
                 </div>
-                
+
                 {isManageMode ? (
                   <div className="flex items-center gap-2">
                     <div className="flex flex-col gap-1 mr-2">
@@ -98,7 +98,7 @@ export const HabitList: React.FC<HabitListProps> = ({ habits, completedIds, onTo
                       }}
                       className="flex items-center gap-2 px-3 py-2 rounded-xl bg-rose-100 text-rose-600 hover:bg-rose-200 transition-colors"
                     >
-                      <span className="text-[10px] font-bold uppercase tracking-wider">Delete</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider">刪除</span>
                       <Trash2 size={14} />
                     </button>
                   </div>

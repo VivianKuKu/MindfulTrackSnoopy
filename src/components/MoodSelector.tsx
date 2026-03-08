@@ -9,11 +9,11 @@ interface MoodSelectorProps {
 }
 
 const moods: { type: Mood; label: string; color: string }[] = [
-  { type: 'great', label: 'Great', color: 'text-mood-great bg-mood-great/10' },
-  { type: 'good', label: 'Good', color: 'text-mood-good bg-mood-good/10' },
-  { type: 'neutral', label: 'Neutral', color: 'text-mood-neutral bg-mood-neutral/10' },
-  { type: 'bad', label: 'Bad', color: 'text-mood-bad bg-mood-bad/10' },
-  { type: 'terrible', label: 'Terrible', color: 'text-mood-terrible bg-mood-terrible/10' },
+  { type: 'great', label: '極佳', color: 'text-mood-great bg-mood-great/10' },
+  { type: 'good', label: '不錯', color: 'text-mood-good bg-mood-good/10' },
+  { type: 'neutral', label: '平靜', color: 'text-mood-neutral bg-mood-neutral/10' },
+  { type: 'bad', label: '不好', color: 'text-mood-bad bg-mood-bad/10' },
+  { type: 'terrible', label: '極差', color: 'text-mood-terrible bg-mood-terrible/10' },
 ];
 
 export const MoodSelector: React.FC<MoodSelectorProps> = ({ selected, onSelect }) => {

@@ -2,15 +2,15 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Cormorant Garamond", serif;
+  --font-sans: "Microsoft JhengHei", "PingFang TC", "Noto Sans TC", sans-serif;
+  --font-serif: "Microsoft JhengHei", "PingFang TC", "Noto Sans TC", sans-serif;
   
-  --color-warm-bg: #fdfcf8;
-  --color-warm-ink: #4a3f35;
-  --color-warm-accent: #e8a87c;
-  --color-warm-rose: #c38d9e;
-  --color-warm-sage: #85997e;
-  --color-warm-cream: #f5f2ed;
+  --color-warm-bg: #fffbf0;
+  --color-warm-ink: #1f1f1f;
+  --color-warm-accent: #ffb703;
+  --color-warm-rose: #e63946;
+  --color-warm-sage: #8ecae6;
+  --color-warm-cream: #f4f1ea;
   
   --color-mood-great: #064e3b;
   --color-mood-good: #10b981;
@@ -25,7 +25,7 @@
   }
   
   h1, h2, h3 {
-    @apply font-serif;
+    @apply font-sans font-bold;
   }
 }
 
