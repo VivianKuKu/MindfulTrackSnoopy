@@ -486,7 +486,7 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ logs, habitsCoun
                   <div className="text-[10px] font-bold text-warm-ink/40 uppercase tracking-widest">反思總數</div>
                   <div className="text-xl font-bold font-serif text-warm-ink">已寫下 {stats.totalReflections} 則筆記</div>
                 </div>
-                <img src="/woodstock.png" alt="Woodstock" className="absolute -right-2 -bottom-2 w-20 opacity-20 object-contain pointer-events-none" />
+                <img src="woodstock.png" alt="Woodstock" className="absolute -right-2 -bottom-2 w-20 opacity-20 object-contain pointer-events-none" />
               </div>
             </div>
           </div>

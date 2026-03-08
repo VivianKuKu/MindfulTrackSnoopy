@@ -152,7 +152,7 @@ export default function App() {
     <div className="w-full max-w-md mx-auto min-h-screen bg-warm-bg flex flex-col pb-32 selection:bg-warm-accent/20">
       {/* Header */}
       <header className="p-8 pt-14 flex justify-between items-end relative">
-        <img src="/snoopy.png" alt="Snoopy Theme" className="absolute top-2 right-4 w-28 opacity-90 object-contain pointer-events-none drop-shadow-md" style={{ transform: 'scaleX(-1)' }} />
+        <img src="snoopy.png" alt="Snoopy Theme" className="absolute top-2 right-4 w-28 opacity-90 object-contain pointer-events-none drop-shadow-md" style={{ transform: 'scaleX(-1)' }} />
         <div className="z-10">
           <h1 className="text-4xl font-bold tracking-tight text-warm-ink mb-1">
             {activeTab === 'today' ? '今日儀式' : activeTab === 'stats' ? '成長軌跡' : '反思回顧'}
@@ -243,7 +243,7 @@ export default function App() {
               {Object.values(state.logs).filter(l => (l as DayLog).note?.trim()).length === 0 ? (
                 <div className="bg-white p-10 rounded-[2.5rem] border border-warm-cream text-center space-y-4 shadow-sm relative overflow-hidden">
                   <div className="w-20 h-20 bg-warm-cream rounded-full flex items-center justify-center mx-auto shadow-inner">
-                    <img src="/woodstock.png" alt="Woodstock" className="w-14 h-14 object-contain" />
+                    <img src="woodstock.png" alt="Woodstock" className="w-14 h-14 object-contain" />
                   </div>
                   <h3 className="text-2xl font-serif font-bold">記憶相冊</h3>
                   <p className="text-warm-ink/50 leading-relaxed">你的反思將呈現在此處。今天就開始記錄吧。</p>
